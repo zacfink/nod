@@ -14,7 +14,7 @@ guard mm.isDeviceMotionAvailable else { print("unavailable: no supported AirPods
 if !question.isEmpty {
     let say = Process()
     say.executableURL = URL(fileURLWithPath: "/usr/bin/say")
-    say.arguments = [question]
+    say.arguments = ["-v", "Sangeeta (Enhanced)", "-r", "200", question]  // same voice as `talk`
     try? say.run(); say.waitUntilExit()
 }
 
