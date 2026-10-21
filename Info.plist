@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>com.zac.nod</string>
+<key>CFBundleName</key><string>nod</string>
+<key>NSMotionUsageDescription</key><string>Reads AirPods head movement so you can answer Claude with a nod or shake.</string>
+</dict></plist>
