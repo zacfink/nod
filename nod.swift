@@ -45,12 +45,13 @@ final class Swings {
 
 if !question.isEmpty { speak(question) }
 chime("Tink")
-var pitch = Swings(), yaw = Swings(), start = Date(), done = false, retried = false, listening = true
+// Times come from each sample (seconds since boot), not the clock: samples queued while we speak arrive in a burst.
+var pitch = Swings(), yaw = Swings(), from = ProcessInfo.processInfo.systemUptime, done = false, retried = false
 
 mm.startDeviceMotionUpdates(to: OperationQueue.main) { m, err in
     if let err { print("error: \(err.localizedDescription)"); exit(2) }
-    guard !done, listening, let a = m?.attitude else { return }
-    let now = Date().timeIntervalSince(start)
+    guard !done, let m, m.timestamp >= from else { return }  // drop anything from before listening (re)started
+    let a = m.attitude, now = m.timestamp
     let ps = pitch.add(a.pitch, now), ys = yaw.add(a.yaw, now)
     if debug { print(String(format: "pitch %+.2f yaw %+.2f  swings p %d y %d", a.pitch, a.yaw, ps, ys)) }
     if ys >= 3 && ys > ps { done = true; finish("shake", "Basso", 1) }
@@ -62,10 +63,10 @@ func expire() {
     DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
         if done { return }
         if retried { finish("timeout", "Bottle", 2) }
-        retried = true; listening = false
-        speak("Sorry, nod or shake?")
-        pitch = Swings(); yaw = Swings(); start = Date(); listening = true
-        chime("Tink"); expire()
+        retried = true
+        speak("Sorry, nod or shake?"); chime("Tink")
+        pitch = Swings(); yaw = Swings(); from = ProcessInfo.processInfo.systemUptime
+        expire()
     }
 }
 expire()
