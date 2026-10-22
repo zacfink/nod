@@ -5,7 +5,8 @@ tone, then listens for 6 seconds: nod for yes, shake for no.
 
 - **Yes:** three up-down swings → prints `nod`, exit code 0
 - **No:** three side-to-side swings → prints `shake`, exit code 1
-- **Nothing:** turning to look at something is a single swing, so it doesn't count → `timeout`, exit code 2
+- **Nothing:** turning to look at something is a single swing, so it doesn't count. If it catches nothing it asks
+  "Sorry, nod or shake?" once more, then gives up → `timeout`, exit code 2
 
 Because the answer is an exit code, any script or AI agent can use it:
 
@@ -25,4 +26,5 @@ swiftc -O nod.swift -o nod -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_
 ./nod "Does this work?"   # macOS asks for motion access the first time
 ```
 
-Add `--debug` to print the live pitch and yaw. It's one 60-line Swift file using `CMHeadphoneMotionManager`.
+`--voice NAME` picks the speaking voice (default Sangeeta (Enhanced), falling back to your system voice if it isn't
+installed). Add `--debug` to print the live pitch and yaw. It's one 60-line Swift file using `CMHeadphoneMotionManager`.
