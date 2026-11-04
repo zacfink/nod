@@ -12,6 +12,7 @@ let question = args.joined(separator: " ")
 let timeout = 6.0  // listening window after the tone, like AirPods call gestures
 
 let mm = CMHeadphoneMotionManager()
+if args.contains("--help") || args.contains("-h") { print("usage: nod [question] [--voice NAME] [--debug]\nexit 0 = nod (yes), 1 = shake (no), 2 = timeout/unavailable"); exit(0) }
 guard mm.isDeviceMotionAvailable else { print("unavailable: no supported AirPods"); exit(2) }
 
 func run(_ path: String, _ arguments: [String]) -> String {
@@ -46,13 +47,16 @@ final class Swings {
 if !question.isEmpty { speak(question) }
 chime("Tink")
 // Times come from each sample (seconds since boot), not the clock: samples queued while we speak arrive in a burst.
+var yawRaw = 0.0, yawOff = 0.0  // yaw wraps at ±π; unwrap it so crossing the seam isn't counted as a huge swing
 var pitch = Swings(), yaw = Swings(), from = ProcessInfo.processInfo.systemUptime, done = false, retried = false
 
 mm.startDeviceMotionUpdates(to: OperationQueue.main) { m, err in
     if let err { print("error: \(err.localizedDescription)"); exit(2) }
     guard !done, let m, m.timestamp >= from else { return }  // drop anything from before listening (re)started
     let a = m.attitude, now = m.timestamp
-    let ps = pitch.add(a.pitch, now), ys = yaw.add(a.yaw, now)
+    if abs(a.yaw - yawRaw) > .pi { yawOff += a.yaw < yawRaw ? 2 * .pi : -2 * .pi }
+    yawRaw = a.yaw
+    let ps = pitch.add(a.pitch, now), ys = yaw.add(a.yaw + yawOff, now)
     if debug { print(String(format: "pitch %+.2f yaw %+.2f  swings p %d y %d", a.pitch, a.yaw, ps, ys)) }
     if ys >= 3 && ys > ps { done = true; finish("shake", "Basso", 1) }
     if ps >= 3 && ps > ys { done = true; finish("nod", "Glass", 0) }

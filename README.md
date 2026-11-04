@@ -27,4 +27,4 @@ swiftc -O nod.swift -o nod -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_
 ```
 
 `--voice NAME` picks the speaking voice (default Sangeeta (Enhanced), falling back to your system voice if it isn't
-installed). Add `--debug` to print the live pitch and yaw. It's one 60-line Swift file using `CMHeadphoneMotionManager`.
+installed). Add `--debug` to print the live pitch and yaw. It's one small Swift file using `CMHeadphoneMotionManager`.
